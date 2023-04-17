@@ -1,44 +1,68 @@
 import { useState } from 'react';
-import { Button, Form, Grid, Header, Image, Card, Segment } from 'semantic-ui-react';
+import axios from 'axios'; 
+import { Button, Form, Grid, Image, Card, Segment } from 'semantic-ui-react';
 
-const PostData = ({ url, data, onSuccess, onError }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
+const PostData = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const animegirl = 'https://res.cloudinary.com/dc4mgv156/image/upload/v1681404966/diseno-ilustracion-vector-personaje-estilo-anime-chica-joven-chica-anime-manga_147933-93-removebg-preview_gzufmq.png'
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
-
     try {
-      const response = await fetch(url, {
-        method: 'POST',
+      const response = await axios.post('http://localhost:5249/api/Auth/login', formData, {
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+          'Access-Control-Allow-Origin': 'http://localhost:3000',
+          'Content-Type': 'application/json'
+        }
       });
-      const json = await response.json();
-      if (response.ok) {
-        onSuccess && onSuccess(json);
-      } else {
-        setError(json);
-        onError && onError(json);
-      }
+      console.log(response);
+     
     } catch (error) {
-      setError(error);
-      onError && onError(error);
-    } finally {
-      setLoading(false);
+      console.log(error);
     }
   };
 
+
   return (
-    <Form onSubmit={handleSubmit}>
-      {error && <div>Error: {error.message}</div>}
-      <Button type="submit" disabled={loading}>
-        {loading ? 'Loading...' : 'Iniciar Sesion'}
-      </Button>
-    </Form>
+    
+   <Grid>
+   <Grid.Column style={{backgroundColor: '#00695c'}} width={5}>
+    <div style={{ width: '15em', height: '20em', padding: '0.5em', paddingRight: '1em'}}>
+      <Image  style={{width:'100%', height: '100%'}} alt='' src={animegirl} ></Image>
+    </div>
+   </Grid.Column>
+   <Grid.Column  style={{backgroundColor:'#f8bbd0'}} width={11}>
+   <Card style={{borderRadius: '10px', marginLeft: '3em',width: '29em',height: '19em', padding: '1em 1em 1em 1em'}} >
+  <Form onSubmit={handleSubmit} style={{height: '100%'}}>
+    <Form.Input
+      fluid
+      icon="user"
+      iconPosition="left"
+      placeholder="Correo Electronico"
+      name="email"
+      value={formData.email}
+      onChange={handleInputChange}
+    />
+    <Form.Input
+      fluid
+      icon="lock"
+      iconPosition="left"
+      placeholder="Contraseña"
+      type="password"
+      name="password"
+      value={formData.password}
+      onChange={handleInputChange}
+    />
+    <div style={{display: 'flex', justifyContent: 'center', paddingTop: '5em'}} >
+      <Button type="submit">Submit</Button>
+    </div>
+  </Form>
+</Card>
+    </Grid.Column>
+   </Grid>
   );
 };
 
